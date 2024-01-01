@@ -1,4 +1,6 @@
-# `Pypox` Class Structure
+# `Pypox` compiler class
+
+---
 
 #### `__init__(self, directory: str)`
 

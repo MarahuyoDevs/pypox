@@ -109,7 +109,7 @@ API_HTTP_PARAMETERS: List[str] = [
 class Pypox:
     def __init__(self, directory: str) -> None:
         """
-        Initializes an instance of the class.
+        Initializes an instance of the Compiler class.
 
         Parameters:
             directory (str): The directory path.
@@ -129,7 +129,7 @@ class Pypox:
         Returns:
             Pypox: The current instance of Pypox.
         """
-        for root, dirs, files in os.walk(f"{self.directory}"):
+        for root, _, files in os.walk(f"{self.directory}"):
             folder_modules: List[ModuleType] = []
             for file in files:
                 if file not in FILE_CONVENTIONS:
@@ -214,6 +214,7 @@ class Pypox:
         """
         endpoints: list[Callable] = []
         configs: list[dict[str, Any]] = []
+
         for module in modules:
             if (
                 module.__name__.upper() not in API_HTTP_VERBS
@@ -223,6 +224,7 @@ class Pypox:
 
             assert hasattr(module, "endpoint"), "endpoint not found in module"
             endpoints.append(getattr(module, "endpoint"))
+
             api_config: dict[str, Any] = {
                 key: getattr(module, key)
                 for key in API_HTTP_PARAMETERS
@@ -230,6 +232,7 @@ class Pypox:
             }
             api_config["methods"] = [module.__name__.upper()]
             configs.append(api_config)
+
         return endpoints, configs
 
     def __call__(self, *args: Any, **kwds: Any) -> FastAPI:

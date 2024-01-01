@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---
+
 # Pypox
 
 ## Overview
@@ -34,6 +39,8 @@ The Pypox module is designed to dynamically generate a FastAPI application and A
 
 - **Improved Collaboration:** The standardized approach to API development enhances collaboration among team members by establishing a common ground for understanding API endpoints and configurations.
 
+---
+
 ## Features
 
 - Automatic discovery of modules within a specified directory following specific file naming conventions.
@@ -41,53 +48,22 @@ The Pypox module is designed to dynamically generate a FastAPI application and A
 - Configures endpoints, their methods, and associated configurations based on module contents.
 - Supports startup and shutdown functions to manage the application's lifespan.
 
+---
+
 ## Installation
 
-To use Pypox, you have multiple installation options:
-
-### Using Pipenv
-
-If you prefer managing dependencies within a virtual environment using Pipenv, you can install Pypox as follows:
-
-```bash
-pipenv install pypox
-```
-
-This command will create a Pipfile and Pipfile.lock and install Pypox along with its dependencies in a virtual environment managed by Pipenv.
-
-### Using pip
-
-Alternatively, you can install Pypox directly using pip:
+To use Pypox, install it using pip:
 
 ```bash
 pip install pypox
 ```
 
-This command installs Pypox globally or within your current Python environment without creating a virtual environment.
+**Other installation methods**
 
-### Usage
+if you want to use in a virtual environment. check out the installation page.
+<a href="https://po-key.github.io/installation/pipenv">Installation Page</a>
 
-After installing Pypox, ensure the modules within the specified directory follow the naming conventions described in the documentation. Use Pypox by instantiating the `Pypox` class and generating the FastAPI application and API routers as demonstrated in the examples above.
-
-## Uninstallation
-
-To remove Pypox and its dependencies, you can use Pipenv or pip:
-
-### Using Pipenv
-
-```bash
-pipenv uninstall pypox
-```
-
-This command removes Pypox from the Pipenv-managed virtual environment.
-
-### Using pip
-
-```bash
-pip uninstall pypox
-```
-
-This command uninstalls Pypox globally or within your current Python environment.
+---
 
 ## Usage
 
@@ -114,18 +90,22 @@ To use Pypox, follow these steps:
        uvicorn.run(fastapi_app, host="0.0.0.0", port=8000)
    ```
 
+---
+
 ## Dependencies
 
 Pypox requires the following dependencies:
 
-- `fastapi`
-- `uvicorn[standard]`
+- `FastAPI`: FastAPI framework, high performance, easy to learn, fast to code, ready for production
+- `uvicorn`: An ASGI web server, for Python. ( you can also use other ASGI web servers like `Hypercorn`, `Daphne`, `etc.`)
+- `sqlmodel`: SQLModel, SQL databases in Python, designed for simplicity, compatibility, and robustness.
+- `sqlalchemy`: Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL.
+
+---
 
 ## Limitations
 
 - The module assumes specific file naming conventions for modules within the directory.
 - It requires the presence of specific functions (`startup` and `shutdown`) for managing application lifespan.
-
-```
-
-```
+- Middleware convention is still in development.
+- Database convention is still a work of progress. expect some bugs and issues when using it.

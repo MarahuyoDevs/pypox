@@ -1,13 +1,50 @@
-site_name: Pypox
+site_name: Po-key / Pypox
 site_url: https://po-key.github.io/pypox
-nav:
-  - Home: index.md
-  - Installation: installation.md
-  - Examples: examples.md
-  - Pypox Strucuture: pypox_structure.md
-  - About: about.md
+site_description: Pypox web Framework, Convention based framework built on top of FastAPI, easy to learn, high performance, ready for production.
+repo_name: po-key/pypox
+repo_url: https://github.com/po-key/pypox
 theme:
   name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: orange
+      accent: light blue
+      toggle:
+        icon: material/lightbulb
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: orange
+      accent: light blue
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to light mode
+  features:
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - navigation.indexes
+    - content.tooltips
+    - navigation.path
+    - content.code.annotate
+    - content.code.copy
+    - content.code.select
+    - navigation.tabs
+    - navigation.top
+    - header.autohide
+  language: en
+nav:
+  - Home: index.md
+  - Installation:
+      - Pipenv: installation/pipenv.md
+      - Poetry: installation/poetry.md
+  - References:
+      - Compiler: references/compiler.md
+      - Database: references/database.md
+  - Examples: examples.md
+  - About: about.md
+  - Roadmap: roadmap.md
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
