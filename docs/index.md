@@ -61,7 +61,7 @@ pip install pypox
 **Other installation methods**
 
 if you want to use in a virtual environment. check out the installation page.
-<a href="https://po-key.github.io/installation/pipenv">Installation Page</a>
+[Installation Page](/pypox/installation/pipenv)
 
 ---
 

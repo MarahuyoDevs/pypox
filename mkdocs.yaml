@@ -42,10 +42,18 @@ nav:
   - References:
       - Compiler: references/compiler.md
       - Database: references/database.md
+  - Tutorials:
+      - Routing: tutorials/http.md
+      - Websocket: tutorials/websocket.md
+      - Database: tutorials/database.md
+      - Lifespan: tutorials/lifespan.md
+      - Configuration: tutorials/configuration.md
   - Examples: examples.md
   - About: about.md
   - Roadmap: roadmap.md
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
+  - admonition
+  - pymdownx.details
   - pymdownx.superfences
