@@ -1,6 +1,10 @@
-# Po-key Starter Template
+# Pypox
 
-This is a Python package template utilizing Poetry as a package manager.
+Convention based api framework built on top of FastAPI
+
+**Documentation**: <a href="https://po-key.github.io/pypox" target="_blank">https://po-key.github.io/pypox</a>
+
+**Source code**: <a href="https://github.com/Po-key/pypox" target="_blank">https://github.com/Po-key/pypox</a>
 
 ## Installation
 

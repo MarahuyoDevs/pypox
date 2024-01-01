@@ -1,0 +1,14 @@
+site_name: Pypox
+site_url: https://po-key.github.io/pypox
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Examples: examples.md
+  - Pypox Strucuture: pypox_structure.md
+  - About: about.md
+theme:
+  name: material
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
