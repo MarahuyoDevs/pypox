@@ -20,7 +20,7 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            const currentVersion = ${{ steps.get_version.outputs.version }};
+            const currentVersion = 1.4.0;
             const versionParts = currentVersion.split('.');
             const newVersion = `${versionParts[0]}.${versionParts[1]}.${parseInt(versionParts[2]) + 1}`;
             console.log(`New version: ${newVersion}`);
