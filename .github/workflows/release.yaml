@@ -20,9 +20,10 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            const currentVersion = context.outputs.version;
+            const currentVersion = ${{ steps.get_version.outputs.version }};
             const versionParts = currentVersion.split('.');
             const newVersion = `${versionParts[0]}.${versionParts[1]}.${parseInt(versionParts[2]) + 1}`;
+            console.log(`New version: ${newVersion}`);
             core.setOutput('new_version', newVersion);
       - name: Create Release
         id: create_release
