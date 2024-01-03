@@ -1,5 +1,3 @@
-## Working with Headers in Pypox
-
 Pypox, built on FastAPI, allows you to handle HTTP headers conveniently within your API endpoints. Using Pypox conventions and FastAPI features, you can easily access and process headers in your application.
 
 ### Setting up Header Handling
