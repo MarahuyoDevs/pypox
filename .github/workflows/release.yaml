@@ -2,8 +2,7 @@ name: Create Release
 
 on:
   push:
-    # Sequence of patterns matched against refs/tags
-    branch:
+    branches:
       - master
 
 jobs:
@@ -13,14 +12,29 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Get current release version
+        id: get_version
+        run: echo "::set-output name=version::$(cat version.txt)"
+      - name: Increment release version
+        id: increment_version
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const currentVersion = context.outputs.version;
+            const versionParts = currentVersion.split('.');
+            const newVersion = `${versionParts[0]}.${versionParts[1]}.${parseInt(versionParts[2]) + 1}`;
+            core.setOutput('new_version', newVersion);
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Add the repo scope to the GITHUB_TOKEN
+          # This provides necessary permissions to access the resource
+          permissions: repo
         with:
           tag_name: Pypox
-          release_name: Release 1.4.1
+          release_name: Release ${{ steps.increment_version.outputs.new_version }}
           body_path: CHANGELOG.md
           draft: true
           prerelease: true
