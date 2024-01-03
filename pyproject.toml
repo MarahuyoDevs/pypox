@@ -23,6 +23,7 @@ pytest-asyncio = "^0.23.2"
 twine = "^4.0.2"
 mkdocs = "^1.5.3"
 mkdocs-material = "^9.5.3"
+build = "^1.0.3"
 
 [build-system]
 requires = ["poetry-core"]
