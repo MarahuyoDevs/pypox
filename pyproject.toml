@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "po-key-package-template"
-version = "0.1.0"
+name = "pypox"
+version = "1.4.1"
 description = ""
 authors = ["karl robeck alferez <karlalferezfx@gmail.com>"]
 readme = "README.md"
