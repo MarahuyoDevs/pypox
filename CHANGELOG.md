@@ -8,3 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - Change the core system to poetry.
 - Add documentation on github.
+
+## v1.3.1
+
+### Changed
+
+- Change the core system to poetry.
+- Add documentation on github.

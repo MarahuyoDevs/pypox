@@ -20,11 +20,46 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            const currentVersion = 1.4.0;
-            const versionParts = currentVersion.split('.');
-            const newVersion = `${versionParts[0]}.${versionParts[1]}.${parseInt(versionParts[2]) + 1}`;
-            console.log(`New version: ${newVersion}`);
-            core.setOutput('new_version', newVersion);
+            const fs = require("fs");
+
+            // Specify the file path
+            const filePath = "./CHANGELOG.md";
+
+            // Read the file contents
+            fs.readFile(filePath, "utf8", (err, data) => {
+              if (err) {
+                console.error(err);
+                return;
+              }
+
+              // Store the changelog entries as an object
+              const changelog = {};
+
+              // Split the data by new lines
+              const lines = data.split("\n");
+
+              // Iterate through each line
+              let currentVersion = "";
+              lines.forEach((line) => {
+                // Check if the line is a version heading
+                if (line.startsWith("## ")) {
+                  // Remove the '## ' characters and trim any leading/trailing spaces
+                  currentVersion = line.replace("## ", "").trim();
+                  if (currentVersion !== "") {
+                    changelog[currentVersion] = "";
+                  }
+                } else {
+                  // Append the line to the current version's description
+                  if (currentVersion !== "") {
+                    changelog[currentVersion] += line + "\n";
+                  }
+                }
+              });
+
+              // Use the changelog object as needed
+              core.setOutput('new_version', Object.keys(changelog)[0]);
+            });
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
