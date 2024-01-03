@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - master
-
+permissions:
+  contents: write
 jobs:
   build:
     name: Create Release
@@ -65,9 +66,6 @@ jobs:
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Add the repo scope to the GITHUB_TOKEN
-          # This provides necessary permissions to access the resource
-          permissions: repo
         with:
           tag_name: Pypox
           release_name: Release ${{ steps.increment_version.outputs.new_version }}
