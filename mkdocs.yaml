@@ -45,7 +45,7 @@ nav:
   - Tutorials:
       - Setup:
           - Basic Setup: tutorials/setup/starter.md
-      - Routing:
+      - Endpoint:
           - HTTP Routing: tutorials/routing/http.md
           - Path Parameters: tutorials/routing/path_params.md
           - Query Parameters: tutorials/routing/query_params.md
