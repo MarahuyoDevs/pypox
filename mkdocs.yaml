@@ -43,7 +43,16 @@ nav:
       - Compiler: references/compiler.md
       - Database: references/database.md
   - Tutorials:
-      - Routing: tutorials/http.md
+      - Setup:
+          - Basic Setup: tutorials/setup/starter.md
+      - Routing:
+          - HTTP Routing: tutorials/routing/http.md
+          - Path Parameters: tutorials/routing/path_params.md
+          - Query Parameters: tutorials/routing/query_params.md
+          - Request Body: tutorials/routing/request_body.md
+          - Cookie Parameters: tutorials/routing/cookies.md
+          - Header Parameters: tutorials/routing/header.md
+          - Form Data: tutorials/routing/form_data.md
       - Websocket: tutorials/websocket.md
       - Database: tutorials/database.md
       - Lifespan: tutorials/lifespan.md

@@ -36,7 +36,7 @@ In this structure:
 
 !!! note
 
-    you can also not use `routes` as main route because `routes` is just a pypox convetion.
+    you can also not use `routes` as main route because `routes` is just a pypox convention.
 
 ```
 project_root/
