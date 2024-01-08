@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "pypox"
-version = "1.4.1"
-description = ""
+version = "1.5.1"
+description = "convention based API Framework built on top of FastAPI"
 authors = ["karl robeck alferez <karlalferezfx@gmail.com>"]
 readme = "README.md"
 
@@ -15,6 +15,8 @@ uvicorn = {extras = ["standard"], version = "^0.25.0"}
 httpx = "^0.26.0"
 faker = "^22.0.0"
 aiosqlite = "^0.19.0"
+mkdocs = "^1.5.3"
+aiofiles = "^23.2.1"
 
 
 [tool.poetry.group.dev.dependencies]
