@@ -1,5 +1,5 @@
 from tests.app.database.SQLITE import TodoDatabase
-from tests.app.routes.todo.schemas import UserTodo, UserTodoWithId
+from tests.app.api.todo.schemas import UserTodo, UserTodoWithId
 from fastapi import status, Depends, HTTPException
 from sqlmodel import select
 from pypox.database import asyncDbSession, AsyncSession

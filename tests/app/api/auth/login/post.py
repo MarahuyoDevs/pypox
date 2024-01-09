@@ -1,7 +1,7 @@
 from sqlalchemy import Row
 from fastapi import status, HTTPException
 from pypox.database import asyncDbSession, AsyncSession
-from tests.app.routes.auth.login.schemas import UserLogin
+from tests.app.api.auth.login.schemas import UserLogin
 from tests.app.database.SQLITE import TodoDatabase
 from sqlmodel import select
 

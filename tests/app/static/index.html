@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% if 'title' in head %}
+    <title>{{head['title']}}</title>
+    {% else %}
+    <title>Vanguard</title>
+    {% endif %} {% if 'metadata' in head['metadata'] %} {% for metadata in
+    head['metadata'] %} {% for key,val in metadata.items()%}
+    <meta {{key}}="{{val}}" />
+    {% endfor %} {% endfor %} {% endif %}
+  </head>
+  <body class="">
+    {{slot}} {{script}}
+  </body>
+  <script></script>
+</html>

@@ -138,11 +138,11 @@ class VanguardMiddleware(BaseHTTPMiddleware):
     async def render(
         self, url_path: str, request: Request, mode: str = "full"
     ) -> Union[HTMLResponse, JSONResponse]:
-        loaded_data: dict = {}
+        loaded_data: dict = {"head": ""}
 
         if "load.py" in self.routes[url_path]:
-            loaded_data = await self.routes[url_path]["load.py"].load(  # type: ignore
-                request
+            loaded_data.update(
+                await self.routes[url_path]["load.py"].load(request)  # type: ignore
             )
         html = (
             self.routes[url_path]["page.html"].render(**loaded_data)  # type: ignore
@@ -150,20 +150,30 @@ class VanguardMiddleware(BaseHTTPMiddleware):
             else self.routes[url_path]["page.html"].render()  # type: ignore
         )
 
-        components = url_path.strip("/").split("/")
-        routes = [
-            "/" + "/".join(components[: i + 1]) + "/"
-            for i in range(len(components))
-            if i != 0
-        ][::-1]
-        routes = [route for route in routes if route != "//"]
+        rendered_layouts = set()
+        current_route = ""
+        for route in url_path.split("/")[:-1][::-1]:
+            if not route:
+                route = "/"
+            if not current_route:
+                current_route = url_path
+            # get first the route layout before getting other layouts
+            if current_route == url_path:
+                # get the layout page
+                if "layout.html" in self.routes[url_path]:
+                    html = self.routes[url_path]["layout.html"].render(  # type: ignore
+                        slot=html, **loaded_data
+                    )
+                    rendered_layouts.add(url_path)
 
-        for route in routes:
-            if "layout.html" in self.routes[route]:
-                html = self.routes[route]["layout.html"].render(slot=html)  # type: ignore
+            current_route = current_route.replace(route + "/", "")
 
-        if url_path == "/" and "layout.html" in self.routes[url_path]:
-            html = self.routes[url_path]["layout.html"].render(slot=html)  # type: ignore
+            if current_route not in rendered_layouts:
+                if "layout.html" in self.routes[current_route]:
+                    html = self.routes[current_route]["layout.html"].render(  # type: ignore
+                        slot=html, **loaded_data
+                    )
+                    rendered_layouts.add(current_route)
         if "script.py" in self.routes[url_path]:
             if mode == "full":
                 return HTMLResponse(

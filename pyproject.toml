@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pypox"
-version = "1.5.1"
+version = "1.5.2"
 description = "convention based API Framework built on top of FastAPI"
 authors = ["karl robeck alferez <karlalferezfx@gmail.com>"]
 readme = "README.md"

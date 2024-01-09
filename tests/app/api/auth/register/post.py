@@ -2,7 +2,7 @@ from uuid import uuid1
 from fastapi import Depends, HTTPException, status
 from tests.app.database.SQLITE import TodoDatabase
 from pypox.database import asyncDbSession, AsyncSession
-from tests.app.routes.auth.register.schemas import UserRegister
+from tests.app.api.auth.register.schemas import UserRegister
 from sqlmodel import select
 
 
