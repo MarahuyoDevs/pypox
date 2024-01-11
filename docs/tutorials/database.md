@@ -40,12 +40,15 @@ Pypox simplifies database management using `sqlmodel` and `sqlalchemy`, adhering
    Inside the `__call__` function in `startup.py`, import the database you created (`sampleDb`) and use `createAsyncEngine()` to initialize the database engine.
 
    ```python
-   from pypox import createAsyncEngine
+   from pypox import createAsyncEngine,getAsyncEngine
+   from pypox.database import init_database_async
    from pypox_sample.database.SQLITE import sampleDb
 
+   # Create an engine and store it in a context var
+   createAsyncEngine(sampleDb)
    async def __call__(app: FastAPI):
-       # Create an engine and store it in a context var
-       createAsyncEngine(sampleDb)
+       #initialize database table if doesnt exist
+       init_database_async(getAsyncEngine(sampleDb),sampleDb)
    ```
 
 2. **Database Usage in Endpoints:**

@@ -14,6 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ## Contact
 
-For any inquiries or support, reach out to the maintainers through [karlalferezfx@gmail.com](mailto:karlalferezfx@gmail.com?subject=ResponsePypox).
+For any inquiries or support, reach out to the maintainers through [pokey.business2023@gmail.com](mailto:pokey.business2023@gmail.com?subject=ResponsePypox).
 
 ---
