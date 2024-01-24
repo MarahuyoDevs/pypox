@@ -12,7 +12,7 @@ import os
 from types import ModuleType
 from typing import Any, Callable, Generator
 import importlib.util
-from starlette.routing import BaseRoute, Route, WebSocketRoute
+from starlette.routing import BaseRoute, Route, WebSocketRoute,Router
 from starlette.requests import Request
 from starlette.responses import Response
 from pypox.processor.base import (
@@ -121,7 +121,7 @@ class BaseConvention:
         """
         return self._directory
 
-    def __call__(self, processor_list: list[BaseProcessor]) -> list[BaseRoute]:
+    def __call__(self, processor_list: list[BaseProcessor]) -> Router:
         """
         Retrieves a list of BaseRoute objects based on the specified directory and files.
 
@@ -140,7 +140,7 @@ class BaseConvention:
             route_path: str = self.create_route_path(self.directory, root)
             router.append(self.add_route(route_path, getattr(module, self.callable)))
 
-        return router
+        return Router(router)
 
     def add_route(
         self, route_path: str, func: Callable, methods: list[str] | None = None
