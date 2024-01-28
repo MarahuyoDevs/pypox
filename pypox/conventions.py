@@ -12,14 +12,11 @@ import os
 from types import ModuleType
 from typing import Any, Callable, Generator
 import importlib.util
-from starlette.routing import BaseRoute, Route, WebSocketRoute,Router
+from starlette.routing import BaseRoute, Route, WebSocketRoute, Router
 from starlette.requests import Request
 from starlette.responses import Response
 from pypox.processor.base import (
-    BaseProcessor,
-    encode_request,
-    decode_response,
-    exception_response,
+    ProcessorWrapper,
 )
 
 
@@ -61,11 +58,9 @@ class BaseConvention:
         self._files: dict[str, str] = files
         self._callable = _callable
         self._directory = directory
-        self._processor_func: list[BaseProcessor] = []
+        self._processor_func: list[Callable] = []
 
-    def add_processor(
-        self, processor_func: list[BaseProcessor] | type[BaseProcessor] | None
-    ) -> None:
+    def add_processor(self, processor_func: list[Callable] | Callable | None) -> None:
         """
         Sets the processor function.
 
@@ -74,13 +69,13 @@ class BaseConvention:
         """
         if isinstance(processor_func, list):
             self._processor_func.extend(processor_func)
-        elif isinstance(processor_func, BaseProcessor):
+        elif isinstance(processor_func, Callable):
             self._processor_func.append(processor_func)
         else:
             raise ValueError("Processor function cannot be None")
 
     @property
-    def processor_func(self) -> list[BaseProcessor]:
+    def processor_func(self) -> list[Callable]:
         """
         The list of processor functions.
         """
@@ -121,7 +116,7 @@ class BaseConvention:
         """
         return self._directory
 
-    def __call__(self, processor_list: list[BaseProcessor]) -> Router:
+    def __call__(self, processor_list: list[Callable]) -> Router:
         """
         Retrieves a list of BaseRoute objects based on the specified directory and files.
 
@@ -166,13 +161,13 @@ class BaseConvention:
                 methods = ["GET"]
             return Route(
                 route_path,
-                self.processor(func, self.processor_func),
+                endpoint=ProcessorWrapper(func, self.processor_func).__call__,
                 methods=methods,
             )
         if self.type == "websocket":
             return WebSocketRoute(
                 route_path,
-                self.processor(func, self.processor_func),
+                ProcessorWrapper(func, self.processor_func).__call__,
             )
         raise ValueError("Invalid route type")
 
@@ -233,40 +228,6 @@ class BaseConvention:
         if not hasattr(module, self.callable):
             raise AttributeError("Callable not found in module")
         return module
-
-    def processor(self, func, processor_list: list[BaseProcessor]) -> Any:
-        """
-        Decorator that wraps a function to be used as a processor.
-
-        Args:
-            func (Callable): The function to be wrapped.
-
-        Returns:
-            Callable: The wrapped function.
-
-        """
-
-        async def wrapper(request: Request):
-            try:
-                if iscoroutinefunction(func):
-                    response = await func(
-                        **(await encode_request(request, func, processor_list))
-                    )
-                else:
-                    response = func(
-                        **(await encode_request(request, func, processor_list))
-                    )
-                return await decode_response(request, response, processor_list)
-            except Exception as e:
-                response: Response | None = await exception_response(
-                    request, e, processor_list
-                )
-                if not response:
-                    raise e
-                return response
-
-        wrapper.__annotations__ = func.__annotations__
-        return wrapper
 
 
 class HTTPConvetion(BaseConvention):

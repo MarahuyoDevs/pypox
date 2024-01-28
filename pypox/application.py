@@ -6,8 +6,6 @@ from starlette.routing import Route, Router, Mount, BaseRoute
 from starlette.types import ExceptionHandler, Lifespan, Receive, Scope, Send
 from pypox.conventions import BaseConvention
 
-from pypox.processor.base import BaseProcessor
-
 
 class Pypox(Starlette):
     """A web application framework based on Starlette.
@@ -28,7 +26,7 @@ class Pypox(Starlette):
 
     def __init__(
         self,
-        processor_func: list[BaseProcessor] | None,
+        processor_func: list[Callable] | None,
         conventions: list[BaseConvention],
         debug: bool = False,
         middleware: Sequence[Middleware] | None = None,
@@ -40,7 +38,7 @@ class Pypox(Starlette):
         routes: list[BaseRoute] = []
         for convention in conventions:
             if processor_func:
-                routes.extend(convention(processor_func))
+                routes.extend(convention(processor_func).routes)
         super().__init__(
             debug,
             routes,
