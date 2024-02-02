@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pypox"
-version = "2.0.0.dev2"
+version = "2.0.0.dev3"
 description = ""
 authors = ["karl robeck alferez <karlalferezfx@gmail.com>"]
 readme = "README.md"
