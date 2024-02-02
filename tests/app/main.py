@@ -1,22 +1,14 @@
 import os
 from pypox import Pypox
 
-from pypox.processor.base import (
-    query_processor,
-    path_processor,
-    json_processor,
-)
-from pypox.processor.pydantic import pydantic_processor
+from pypox.processor.base import Query
 
 from pypox.conventions import HTTPConvetion
 
 app: Pypox = Pypox(
     debug=True,
     processor_func=[
-        query_processor,
-        path_processor,
-        json_processor,
-        pydantic_processor,
+        Query,
     ],
     conventions=[
         HTTPConvetion(

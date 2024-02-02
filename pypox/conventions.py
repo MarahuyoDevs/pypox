@@ -6,6 +6,7 @@ Classes:
     HTTPConvention: Represents a convention for HTTP endpoints.
     WebsocketConvention: Represents a convention for websocket endpoints.
 """
+
 from importlib.machinery import ModuleSpec
 from inspect import iscoroutinefunction
 import os
@@ -16,7 +17,8 @@ from starlette.routing import BaseRoute, Route, WebSocketRoute, Router
 from starlette.requests import Request
 from starlette.responses import Response
 from pypox.processor.base import (
-    ProcessorWrapper,
+    Processor,
+    ProcessorEncoder,
 )
 
 
@@ -58,9 +60,11 @@ class BaseConvention:
         self._files: dict[str, str] = files
         self._callable = _callable
         self._directory = directory
-        self._processor_func: list[Callable] = []
+        self._processor_func: list[ProcessorEncoder] = []
 
-    def add_processor(self, processor_func: list[Callable] | Callable | None) -> None:
+    def add_processor(
+        self, processor_func: list[ProcessorEncoder] | ProcessorEncoder | None
+    ) -> None:
         """
         Sets the processor function.
 
@@ -75,7 +79,7 @@ class BaseConvention:
             raise ValueError("Processor function cannot be None")
 
     @property
-    def processor_func(self) -> list[Callable]:
+    def processor_func(self) -> list[ProcessorEncoder]:
         """
         The list of processor functions.
         """
@@ -116,7 +120,7 @@ class BaseConvention:
         """
         return self._directory
 
-    def __call__(self, processor_list: list[Callable]) -> Router:
+    def __call__(self, processor_list: list[ProcessorEncoder]) -> Router:
         """
         Retrieves a list of BaseRoute objects based on the specified directory and files.
 
@@ -161,13 +165,13 @@ class BaseConvention:
                 methods = ["GET"]
             return Route(
                 route_path,
-                endpoint=ProcessorWrapper(func, self.processor_func).__call__,
+                endpoint=Processor(func, self.processor_func).__call__,
                 methods=methods,
             )
         if self.type == "websocket":
             return WebSocketRoute(
                 route_path,
-                ProcessorWrapper(func, self.processor_func).__call__,
+                Processor(func, self.processor_func).__call__,
             )
         raise ValueError("Invalid route type")
 
