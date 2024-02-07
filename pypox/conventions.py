@@ -18,7 +18,6 @@ from starlette.requests import Request
 from starlette.responses import Response
 from pypox.processor.base import (
     Processor,
-    ProcessorEncoder,
 )
 
 
@@ -60,11 +59,9 @@ class BaseConvention:
         self._files: dict[str, str] = files
         self._callable = _callable
         self._directory = directory
-        self._processor_func: list[ProcessorEncoder] = []
+        self._processor_func: list = []
 
-    def add_processor(
-        self, processor_func: list[ProcessorEncoder] | ProcessorEncoder | None
-    ) -> None:
+    def add_processor(self, processor_func: list | None) -> None:
         """
         Sets the processor function.
 
@@ -79,7 +76,7 @@ class BaseConvention:
             raise ValueError("Processor function cannot be None")
 
     @property
-    def processor_func(self) -> list[ProcessorEncoder]:
+    def processor_func(self) -> list:
         """
         The list of processor functions.
         """
@@ -120,14 +117,13 @@ class BaseConvention:
         """
         return self._directory
 
-    def __call__(self, processor_list: list[ProcessorEncoder]) -> Router:
+    def __call__(self) -> Router:
         """
         Retrieves a list of BaseRoute objects based on the specified directory and files.
 
         Returns:
             A list of BaseRoute objects representing the routes defined in the specified directory and files.
         """
-        self.add_processor(processor_list)
         router: list[BaseRoute] = []
 
         for root, file in self.walk():
@@ -165,13 +161,13 @@ class BaseConvention:
                 methods = ["GET"]
             return Route(
                 route_path,
-                endpoint=Processor(func, self.processor_func).__call__,
+                endpoint=func,
                 methods=methods,
             )
         if self.type == "websocket":
             return WebSocketRoute(
                 route_path,
-                Processor(func, self.processor_func).__call__,
+                endpoint=func,
             )
         raise ValueError("Invalid route type")
 

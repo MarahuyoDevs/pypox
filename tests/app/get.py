@@ -2,8 +2,10 @@ from typing import Any, Hashable, Literal
 from pydantic import BaseModel
 import pandas as pd
 from pypox.response.base import PlainTextResponse, HTMLResponse, JSONResponse, Responses
-from pypox.processor.base import Cookie, Processor, Query, Header
+from pypox.processor.base import Cookie, JSONBody, Processor, Query, Header
 from pypox import status
+from pypox.response.pydantic import PydanticResponse
+from pypox.processor.base import processor
 
 data = {
     "a": [1, 2, 3],
@@ -12,24 +14,27 @@ data = {
 
 
 class DataModel(BaseModel):
-    name: str
-    data: list[dict[str, list[int]]]
+    first_name: str
+    last_name: str
+    request_header: str
 
 
 class DataError(BaseModel):
     error: str
 
 
+class DataRequest(BaseModel):
+    id: str
+    name: str
+
+
+@processor
 async def endpoint(
-    id: Query[str] = Query("test"),
-    name: Query[str] = Query("karl"),
-    Content_Type: Header[str] = Header("application/json"),
-    session_cookie: Cookie[str] = Cookie("session"),
-) -> Responses[
-    PlainTextResponse[status.HTTP_200_OK, DataModel],
-    HTMLResponse[status.HTTP_404_NOT_FOUND],
-    PlainTextResponse[status.HTTP_400_BAD_REQUEST, DataError],
-]:
+    accept: Header[str],
+    first_name: Query[str],
+    last_name: Query[str],
+    session_cookie: Cookie[str],
+) -> HTMLResponse:
     """
     This function represents an endpoint that retrieves data.
 
@@ -40,8 +45,4 @@ async def endpoint(
     Returns:
         PydanticResponse[DataModel]: A response object containing the retrieved data.
     """
-    if id == "karl":
-        return HTMLResponse("<h1>Not Found</h1>", status.HTTP_404_NOT_FOUND.code)
-    return PlainTextResponse(
-        f"{id.value} {name.value} {Content_Type.value} {session_cookie.value}"
-    )
+    return HTMLResponse("Hello baby, I love you!!!")

@@ -119,7 +119,7 @@ class Components(BaseModel):
     responses: Optional[dict[str, "Response | Reference"]] = None
     parameters: Optional[dict[str, "Parameter | Reference"]] = None
     examples: Optional[dict[str, dict]] = None
-    requestBodies: Optional[dict[str, dict]] = None
+    requestBodies: Optional[dict[str, "RequestBody | Reference"]] = None
     securitySchemas: Optional[dict[str, dict]] = None
     links: Optional[dict[str, dict]] = None
     callbacks: Optional[dict[str, dict]] = None
@@ -147,7 +147,7 @@ class Header(Parameter):
 
 
 class MediaType(BaseModel):
-    schema: Optional[dict] = None
+    schema_: Optional[dict] = None
     example: Optional[Any] = None
     examples: Optional[dict[str, "Example | Reference"]] = None
     encoding: Optional[dict[str, "Encoding"]] = None

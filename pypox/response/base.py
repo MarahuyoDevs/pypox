@@ -17,7 +17,7 @@ class Responses[**T](StarletteResponse):
         super().__init__(content, status_code, headers, media_type, background)
 
 
-class PlainTextResponse[code, schema](Responses):
+class PlainTextResponse[**T](Responses):
     media_type = "text/plain"
 
     def __init__(
@@ -39,7 +39,7 @@ class PlainTextResponse[code, schema](Responses):
             return super().render(content)
 
 
-class HTMLResponse[code](Responses):
+class HTMLResponse[**T](Responses):
     media_type = "text/html"
 
     def __init__(
@@ -61,7 +61,7 @@ class HTMLResponse[code](Responses):
             return super().render(content)
 
 
-class JSONResponse[code, schema](Responses):
+class JSONResponse[**T](Responses):
     media_type = "application/json"
 
     def __init__(
@@ -81,7 +81,7 @@ class JSONResponse[code, schema](Responses):
 try:
     import orjson
 
-    class ORJSONResponse[code, schema](Responses):
+    class ORJSONResponse[**T](Responses):
 
         def __init__(
             self,

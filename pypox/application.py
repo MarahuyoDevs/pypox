@@ -6,7 +6,6 @@ from starlette.routing import Route, Router, Mount, BaseRoute
 from starlette.types import ExceptionHandler, Lifespan, Receive, Scope, Send
 from pypox.conventions import BaseConvention
 from pypox.openapi.main import OpenAPI, Info, License
-from pypox.processor.base import ProcessorEncoder
 
 
 class Pypox(Starlette):
@@ -28,7 +27,6 @@ class Pypox(Starlette):
 
     def __init__(
         self,
-        processor_func: list[type[ProcessorEncoder]] | None,
         conventions: list[BaseConvention],
         debug: bool = False,
         middleware: Sequence[Middleware] | None = None,
@@ -45,8 +43,7 @@ class Pypox(Starlette):
         self._license = license
         routes: list[BaseRoute] = []
         for convention in conventions:
-            if processor_func:
-                routes.extend(convention(processor_func).routes)
+            routes.extend(convention().routes)
         super().__init__(
             debug,
             routes,
