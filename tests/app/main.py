@@ -1,15 +1,9 @@
-import os
-from pypox import Pypox
+from pypox.router import HTTPRouter
+from starlette.applications import Starlette
 
-from pypox.processor.base import Query, Header, Cookie, Path
+app = Starlette()
 
-from pypox.conventions import HTTPConvetion
-
-app: Pypox = Pypox(
-    debug=True,
-    conventions=[
-        HTTPConvetion(
-            directory=os.path.dirname(__file__),
-        ),
-    ],
+app.mount(
+    "/",
+    HTTPRouter(directory="tests/app/resources", entry_point="endpoint"),
 )

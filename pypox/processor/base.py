@@ -54,7 +54,7 @@ class Encoder[T](Processor):
     def __init__(
         self,
         name: str,
-        content: T,
+        content: T = None,
     ) -> None:
         self.name: str = name
         self.content: T = content
@@ -119,9 +119,9 @@ class Parameter[T](Encoder):
 
     def __init__(
         self,
-        name: str,
-        content: T,
-        is_required: bool,
+        content: T = None,
+        is_required: bool = True,
+        name: str = "",
         description: str = "",
         deprecated: bool = False,
         allow_empty_value: bool = False,
@@ -130,12 +130,17 @@ class Parameter[T](Encoder):
         self.description = description
         self.deprecated = deprecated
         self.allow_empty_value = allow_empty_value
-        super().__init__(name, content)
+        super().__init__(name=name, content=content)
 
     def __call__(self, request: StarletteRequest, _type: type) -> Self:
+        print(self.name)
         data = getattr(request, self.request_type).get(
             self.name.lower().replace("_", "-")
         )
+        if not data:
+            if self.is_required:
+                raise HTTPException(status_code=400, detail=f"{self.name} is required")
+            return self
         self.content = _type(data)
         return self
 
@@ -144,16 +149,21 @@ class Query[T](Parameter):
 
     def __init__(
         self,
-        name: str,
-        content: Any,
-        is_required: bool,
+        content: T = None,
+        is_required: bool = True,
+        name: str = "",
         description: str = "",
         deprecated: bool = False,
         allow_empty_value: bool = False,
     ) -> None:
         self.request_type = "query_params"
         super().__init__(
-            name, content, is_required, description, deprecated, allow_empty_value
+            content=content,
+            is_required=is_required,
+            name=name,
+            description=description,
+            deprecated=deprecated,
+            allow_empty_value=allow_empty_value,
         )
 
 
@@ -161,16 +171,16 @@ class Header[T](Parameter):
 
     def __init__(
         self,
-        name: str,
         content: Any,
-        is_required: bool,
+        is_required: bool = True,
+        name: str = "",
         description: str = "",
         deprecated: bool = False,
         allow_empty_value: bool = False,
     ) -> None:
         self.request_type = "headers"
         super().__init__(
-            name, content, is_required, description, deprecated, allow_empty_value
+            content, is_required, name, description, deprecated, allow_empty_value
         )
 
 
@@ -178,16 +188,16 @@ class Cookie[T](Parameter):
 
     def __init__(
         self,
-        name: str,
         content: Any,
-        is_required: bool,
+        is_required: bool = True,
+        name: str = "",
         description: str = "",
         deprecated: bool = False,
         allow_empty_value: bool = False,
     ) -> None:
         self.request_type = "cookies"
         super().__init__(
-            name, content, is_required, description, deprecated, allow_empty_value
+            content, is_required, name, description, deprecated, allow_empty_value
         )
 
 
@@ -195,16 +205,16 @@ class Path[T](Parameter):
 
     def __init__(
         self,
-        name: str,
         content: Any,
-        is_required: bool,
+        is_required: bool = True,
+        name: str = "",
         description: str = "",
         deprecated: bool = False,
         allow_empty_value: bool = False,
     ) -> None:
         self.request_type = "path_params"
         super().__init__(
-            name, content, is_required, description, deprecated, allow_empty_value
+            content, is_required, name, description, deprecated, allow_empty_value
         )
 
 
@@ -229,9 +239,16 @@ def processor(func):
                 func_params.update({name: Client(name, request.client)})
                 continue
             if issubclass(get_origin(params.annotation), Parameter):
-                param_data: Parameter = params.annotation(name, name, True)(
-                    request, get_args(params.annotation)[0]
-                )
+                if not params.default:
+                    param_data: Parameter = params.annotation(
+                        content=None, is_required=True, name=name
+                    )(request, get_args(params.annotation)[0])
+                else:
+                    param_data: Parameter = params.annotation(
+                        content=params.default.content,
+                        is_required=params.default.is_required,
+                        name=params.default.name or name,
+                    )(request, get_args(params.annotation)[0])
                 func_params.update({name: param_data})
             if issubclass(get_origin(params.annotation), RequestBody):
                 encoder_data: RequestBody = await params.annotation(name, name)(
