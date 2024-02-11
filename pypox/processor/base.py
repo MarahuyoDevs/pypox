@@ -2,6 +2,7 @@
     This module contains the base processor class for handling encoding and decoding of data.
 """
 
+from ast import Param
 from email.policy import default
 from typing import (
     Iterable,
@@ -66,51 +67,79 @@ class Encoder[T](Processor):
     def __oas__(self):
         return "OAS"
 
+    def __bool__(self):
+        return bool(self.content)
+
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}(name={self.name}, content={self.content})"
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __eq__(self, other: Any) -> bool:
+        return self.content == other
+
 
 class Response(Processor):
     pass
 
 
-class RequestBody(Encoder):
+class RequestBody[T](Encoder):
 
-    def __init__(self, name: str, content: Any, media_type: str) -> None:
-        self.media_type = media_type
-        self.request_type = media_type
+    request_type: str = "body"
+    media_type: str = "body"
+
+    def __init__(self, name: str, content: Any) -> None:
         super().__init__(name, content)
 
     async def __call__(self, request: StarletteRequest, _type: type) -> Self:
-
-        match self.request_type:
-            case "body":
-                print("test")
-                self.content = await request.body()
-            case "application/x-www-form-urlencoded":
-                self.content = _type(**await request.form())
-            case "application/json":
-                self.content = _type(**await request.json())
-            case "multipart/form-data":
-                self.content = request.form()
-            case "stream":
-                self.content = request.stream()
+        try:
+            match self.request_type:
+                case "body":
+                    self.content = await request.body()
+                case "application/x-www-form-urlencoded":
+                    self.content = _type(**await request.form())
+                case "application/json":
+                    self.content = _type(**await request.json())
+                case "multipart/form-data":
+                    self.content = request.form()
+                case "stream":
+                    self.content = request.stream()
+        except Exception as e:
+            raise HTTPException(
+                status_code=400, detail=f"Invalid request {self.__str__()}"
+            )
         return self
 
 
 class JSONBody[T](RequestBody):
 
+    request_type = "application/json"
+    media_type = "application/json"
+
     def __init__(self, name: str, content: T) -> None:
-        super().__init__(name, content, "application/json")
+        super().__init__(
+            name,
+            content,
+        )
 
 
 class FormBody[T](RequestBody):
 
+    request_type = "application/x-www-form-urlencoded"
+    media_type = "application/x-www-form-urlencoded"
+
     def __init__(self, name: str, content: Any) -> None:
-        super().__init__(name, content, "application/x-www-form-urlencoded")
+        super().__init__(name, content)
 
 
 class MultiPartBody[T](RequestBody):
 
+    request_type = "multipart/form-data"
+    media_type = "multipart/form-data"
+
     def __init__(self, name: str, content: Any) -> None:
-        super().__init__(name, content, "multipart/form-data")
+        super().__init__(name, content)
 
 
 class Parameter[T](Encoder):
@@ -133,7 +162,6 @@ class Parameter[T](Encoder):
         super().__init__(name=name, content=content)
 
     def __call__(self, request: StarletteRequest, _type: type) -> Self:
-        print(self.name)
         data = getattr(request, self.request_type).get(
             self.name.lower().replace("_", "-")
         )
@@ -232,29 +260,29 @@ def processor(func):
         func_params = {}
 
         for name, params in inspect.signature(func).parameters.items():
-            if params.annotation == StarletteRequest:
+
+            if await is_optional(params):
+                annotation = get_args(params.annotation)[0]
+            else:
+                annotation = params.annotation
+
+            if annotation == StarletteRequest:
                 func_params.update({name: request})
                 continue
-            if get_origin(params.annotation) == Client:
+
+            if annotation == Client:
                 func_params.update({name: Client(name, request.client)})
                 continue
-            if issubclass(get_origin(params.annotation), Parameter):
-                if not params.default:
-                    param_data: Parameter = params.annotation(
-                        content=None, is_required=True, name=name
-                    )(request, get_args(params.annotation)[0])
-                else:
-                    param_data: Parameter = params.annotation(
-                        content=params.default.content,
-                        is_required=params.default.is_required,
-                        name=params.default.name or name,
-                    )(request, get_args(params.annotation)[0])
-                func_params.update({name: param_data})
-            if issubclass(get_origin(params.annotation), RequestBody):
-                encoder_data: RequestBody = await params.annotation(name, name)(
-                    request, get_args(params.annotation)[0]
+
+            if issubclass(get_origin(annotation), Parameter):
+                func_params.update(
+                    {name: await convert_paramaters(request, name, params)}
                 )
-                func_params.update({name: encoder_data})
+
+            if issubclass(get_origin(annotation), RequestBody):
+                func_params.update(
+                    {name: await convert_request_body(request, name, params)}
+                )
         if inspect.iscoroutinefunction(func):
             return await func(**func_params)
         return func(**func_params)
@@ -262,15 +290,86 @@ def processor(func):
     return wrapper
 
 
-@processor
-async def index(
-    test: StarletteRequest,
-    id: Query[str],
-    user_agent: Header[str],
-    name: Query[str],
-):
+async def convert_paramaters(
+    request: StarletteRequest, name: str, parameter: inspect.Parameter
+) -> Parameter:
+    # TODO:
+    # 1. check if paramater has a default value
+    # 2. if it does, check if the default value is an instance of the paramater type
+    # 3. if it is, return the default value
+    # 4. if it is not, raise an error
+    # check if the parameter has a default value
+    parameter_type, sub_type, optional = await get_parameter_type(parameter)
 
-    return PlainTextResponse(f"{user_agent.content} {name.content}")
+    if optional:
+        if not parameter.default == inspect._empty:
+            data: Parameter[Any] = parameter_type(
+                content=parameter.default.content,
+                name=parameter.default.name or name,
+                is_required=parameter.default.is_required,
+            )
+        else:
+            data: Parameter[Any] = parameter_type(
+                content=None, name=name, is_required=False
+            )(request, sub_type)
+    else:
+        data = parameter_type(content=None, name=name)(request, sub_type)
+
+    return data
 
 
-app: Starlette = Starlette(routes=[Route("/", index, methods=["GET"])])
+async def convert_request_body(
+    request: StarletteRequest, name: str, parameter: inspect.Parameter
+) -> RequestBody:
+
+    parameter_type, sub_type, optional = await get_request_body_type(parameter)
+
+    if optional:
+        if not parameter.default == inspect._empty:
+            data: RequestBody[Any] = parameter_type(
+                content=parameter.default.content,
+                name=parameter.default.name or name,
+            )
+        else:
+            data: RequestBody[Any] = parameter_type(content=None, name=name)
+        return data
+    else:
+        data = parameter_type(content=None, name=name)
+
+    return await data(request, sub_type)
+
+
+async def get_parameter_type(
+    parameter: inspect.Parameter,
+) -> tuple[type[Parameter], type, bool]:
+    if await is_optional(parameter):
+        parameter_type: type[Parameter] = get_origin(get_args(parameter.annotation)[0])
+        sub_type = get_args(get_args(parameter.annotation)[0])[0]
+        optional = True
+    else:
+        parameter_type: type[Parameter] = get_origin(parameter.annotation)
+        sub_type = get_args(parameter.annotation)[0]
+        optional = False
+    return parameter_type, sub_type, optional
+
+
+async def get_request_body_type(
+    parameter: inspect.Parameter,
+) -> tuple[type[RequestBody], type, bool]:
+    if await is_optional(parameter):
+        parameter_type: type[RequestBody] = get_origin(
+            get_args(parameter.annotation)[0]
+        )
+        sub_type = get_args(get_args(parameter.annotation)[0])[0]
+        optional = True
+    else:
+        parameter_type: type[RequestBody] = get_origin(parameter.annotation)
+        sub_type = get_args(parameter.annotation)[0]
+        optional = False
+    return parameter_type, sub_type, optional
+
+
+async def is_optional(parameter: inspect.Parameter) -> bool:
+    return get_origin(parameter.annotation) == Union and type(None) in get_args(
+        parameter.annotation
+    )
