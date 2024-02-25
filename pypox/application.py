@@ -4,7 +4,7 @@ from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.routing import Route, Router, Mount, BaseRoute
 from starlette.types import ExceptionHandler, Lifespan, Receive, Scope, Send
-from pypox.conventions import BaseConvention
+from pypox.router import BaseRouter
 from pypox.openapi.main import OpenAPI, Info, License
 
 
@@ -27,7 +27,7 @@ class Pypox(Starlette):
 
     def __init__(
         self,
-        conventions: list[BaseConvention],
+        conventions: list[BaseRouter],
         debug: bool = False,
         middleware: Sequence[Middleware] | None = None,
         exception_handlers: Mapping[Any, ExceptionHandler] | None = None,
@@ -43,7 +43,7 @@ class Pypox(Starlette):
         self._license = license
         routes: list[BaseRoute] = []
         for convention in conventions:
-            routes.extend(convention().routes)
+            routes.extend(convention.generate_routes())
         super().__init__(
             debug,
             routes,

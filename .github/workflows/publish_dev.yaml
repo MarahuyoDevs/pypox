@@ -24,6 +24,8 @@ jobs:
         run: |
           pipx install poetry
           poetry install
+      - name: Test package
+        run: poetry run pytest -s
       - name: Build package
         run: poetry build
       - name: Publish package

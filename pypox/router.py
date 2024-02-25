@@ -77,7 +77,7 @@ class BaseRouter(Router):
             module: ModuleType = self.load_module(module_name, module_path)
 
             route_path: str = self.create_route_path(self.directory, root)
-            router.append(self.create_route(route_path, getattr(module, self.callable)))
+            router.append(self.create_route(route_path, getattr(module, self.callable), methods=[self._file[file]]))
 
         return router
 
