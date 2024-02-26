@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pypox"
-version = "2.0.1.dev2"
+version = "2.0.1.dev3"
 description = ""
 authors = ["karl robeck alferez <karlalferezfx@gmail.com>"]
 readme = "README.md"
@@ -12,6 +12,7 @@ uvicorn = {extras = ["standard"], version = ">=0.25.0"}
 httpx = ">=0.26.0"
 orjson = ">=3.9.12"
 pydantic = ">=2.6.0"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 
 
 [tool.poetry.group.dev.dependencies]
