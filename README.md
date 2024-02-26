@@ -1,34 +1,23 @@
 # Pypox
 
-Convention based api framework built on top of FastAPI
-
-**Documentation**: <a href="https://po-key.github.io/pypox" target="_blank">https://po-key.github.io/pypox</a>
-
-**Source code**: <a href="https://github.com/Po-key/pypox" target="_blank">https://github.com/Po-key/pypox</a>
-
-## Installation
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/Po-key/package-template.git
-   ```
-
-2. Navigate to the project directory:
-
-   ```bash
-   cd your-repository
-   ```
-
-3. Install dependencies using Poetry:
-   ```bash
-   poetry install
-   ```
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## Description
 
-This is the base template for po-key system. feel free to use it at any time.
+Pypox version 2 will replace its current version 1.5.+. although stable, it lacks the flexibility that current python application needed to scale big. we remove FastAPI system from the pypox version 2 for the reason that most of the features that FastAPI brings cant be properly implemented on pypox. that's why we now use pure starlette as a toolkit for implementing routing, middleware, etc.
 
-## License
+the main feature that Pypox version 2 will have is its modular system. from convention based lookup, file based routing, (new middleware based routing) for local and global scope. new processor to convert your data into usable parameters when dealing with request and response.
 
-This project is licensed under the MIT LICENSE - see the [LICENSE](LICENSE) file for details.
+## Features
+
+- File based routing
+- Processor based system.
+- many more
+
+## Installation
+
+This is under development and will be published soon. stay tuned!
+
+## Usage
+
+We will provide example soon!!!

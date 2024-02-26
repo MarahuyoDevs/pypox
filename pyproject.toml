@@ -1,31 +1,28 @@
 [tool.poetry]
 name = "pypox"
-version = "1.5.2"
-description = "convention based API Framework built on top of FastAPI"
+version = "2.0.0"
+description = ""
 authors = ["karl robeck alferez <karlalferezfx@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
-typer = {extras = ["all"], version = "^0.9.0"}
-sqlalchemy = "^2.0.24"
-sqlmodel = "^0.0.14"
-fastapi = "^0.108.0"
-uvicorn = {extras = ["standard"], version = "^0.25.0"}
-httpx = "^0.26.0"
-faker = "^22.0.0"
-aiosqlite = "^0.19.0"
-mkdocs = "^1.5.3"
-aiofiles = "^23.2.1"
+python = "^3.12"
+starlette = ">=0.35.1"
+uvicorn = {extras = ["standard"], version = ">=0.25.0"}
+httpx = ">=0.26.0"
+orjson = ">=3.9.12"
+pydantic = ">=2.6.0"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.4.3"
-pytest-asyncio = "^0.23.2"
-twine = "^4.0.2"
-mkdocs = "^1.5.3"
-mkdocs-material = "^9.5.3"
-build = "^1.0.3"
+pylint = {extras = ["spelling"], version = ">=3.0.3"}
+pydantic = ">=2.5.3"
+jinja2 = ">=3.1.3"
+toml = ">=0.10.2"
+pandas = ">=2.2.0"
+pytest = "^8.0.2"
+pytest-asyncio = "^0.23.5"
 
 [build-system]
 requires = ["poetry-core"]
