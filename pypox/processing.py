@@ -4,6 +4,25 @@ from typing import Callable, Awaitable, NewType
 from starlette.requests import Request
 from starlette.responses import Response
 import asyncio
+from pypox._types import (
+    QueryStr,
+    QueryInt,
+    QueryFloat,
+    QueryBool,
+    PathStr,
+    PathInt,
+    PathFloat,
+    PathBool,
+    HeaderStr,
+    HeaderInt,
+    HeaderFloat,
+    HeaderBool,
+    CookieStr,
+    CookieInt,
+    CookieFloat,
+    CookieBool,
+    BodyDict,
+)
 
 
 def processor(func: Callable) -> Callable:
@@ -27,23 +46,33 @@ async def load_parameters(func: Callable[[], Awaitable], request: Request) -> di
         if annotation.annotation == Request:
             params[name] = request
         if annotation.annotation in [QueryStr, QueryInt, QueryFloat, QueryBool]:
-            params[name.replace("-", "_")] = validate_query(
-                request.query_params[name.replace("_", "-")], annotation.annotation
-            )
+            if name.replace("_", "-") in request.query_params:
+                params[name] = validate_query(
+                    request.query_params[name.replace("_", "-")], annotation.annotation
+                )
+            else:
+                params[name] = validate_query(
+                    request.query_params[name.replace("-", "_")], annotation.annotation
+                )
         if annotation.annotation in [PathStr, PathInt, PathFloat, PathBool]:
-            params[name.replace("-", "_")] = validate_path(
-                request.path_params[name.replace("_", "-")], annotation.annotation
-            )
+            if name.replace("_", "-") in request.path_params:
+                params[name] = validate_path(
+                    request.path_params[name.replace("_", "-")], annotation.annotation
+                )
+            else:
+                params[name] = validate_path(
+                    request.path_params[name.replace("-", "_")], annotation.annotation
+                )
         if annotation.annotation in [HeaderStr, HeaderInt, HeaderFloat, HeaderBool]:
-            params[name.replace("-", "_")] = validate_header(
+            params[name] = validate_header(
                 request.headers[name.replace("_", "-")], annotation.annotation
             )
         if annotation.annotation in [CookieStr, CookieInt, CookieFloat, CookieBool]:
-            params[name.replace("-", "_")] = validate_cookie(
+            params[name] = validate_cookie(
                 request.cookies[name.replace("_", "-")], annotation.annotation
             )
         if annotation.annotation in [BodyDict]:
-            params[name.replace("-", "_")] = await request.json()
+            params[name] = await request.json()
         await asyncio.sleep(0)
     return params
 
@@ -90,27 +119,3 @@ def validate_cookie(value, _type):
         return float(value)
     if _type == CookieBool:
         return bool(value)
-
-
-type QueryStr = str
-
-QueryInt = NewType("QueryInt", int)
-QueryFloat = NewType("QueryFloat", float)
-QueryBool = NewType("QueryBool", bool)
-
-PathStr = NewType("PathStr", str)
-PathInt = NewType("PathInt", int)
-PathFloat = NewType("PathFloat", float)
-PathBool = NewType("PathBool", bool)
-
-HeaderStr = NewType("HeaderStr", str)
-HeaderInt = NewType("HeaderInt", int)
-HeaderFloat = NewType("HeaderFloat", float)
-HeaderBool = NewType("HeaderBool", bool)
-
-CookieStr = NewType("CookieStr", str)
-CookieInt = NewType("CookieInt", int)
-CookieFloat = NewType("CookieFloat", float)
-CookieBool = NewType("CookieBool", bool)
-
-BodyDict = NewType("BodyDict", dict)
