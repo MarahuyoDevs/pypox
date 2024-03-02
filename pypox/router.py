@@ -67,8 +67,8 @@ class BaseRouter(Router):
     def router_type(self) -> str:
         return self._router_type
 
-    def generate_routes(self) -> list[BaseRoute]:
-        router: list[BaseRoute] = []
+    def generate_routes(self) -> list[Route | WebSocketRoute]:
+        router: list[Route | WebSocketRoute] = []
 
         for root, file in self.walk():
             module_name: str = file.split(".")[0]
@@ -77,7 +77,13 @@ class BaseRouter(Router):
             module: ModuleType = self.load_module(module_name, module_path)
 
             route_path: str = self.create_route_path(self.directory, root)
-            router.append(self.create_route(route_path, getattr(module, self.callable), methods=[self._file[file]]))
+            router.append(
+                self.create_route(
+                    route_path,
+                    getattr(module, self.callable),
+                    methods=[self._file[file]],
+                )
+            )
 
         return router
 

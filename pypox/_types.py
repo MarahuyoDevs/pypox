@@ -15,3 +15,4 @@ type CookieInt = int
 type CookieFloat = float
 type CookieBool = bool
 type BodyDict = dict
+type BodyForm = dict
