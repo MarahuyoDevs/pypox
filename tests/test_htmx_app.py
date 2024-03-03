@@ -1,6 +1,6 @@
 from pypox.application import PypoxHTMX
 from pypox.processing.base import processor
-from pypox.processing.htmx import HTMXHeaders, HTMXResponseHeaders
+from pypox.processing.validators.htmx import HTMXHeaders, HTMXResponseHeaders
 from starlette.testclient import TestClient
 from starlette.responses import JSONResponse
 from starlette.requests import Request

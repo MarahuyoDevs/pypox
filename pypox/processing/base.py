@@ -24,13 +24,15 @@ from pypox._types import (
     BodyDict,
     BodyForm,
 )
-from pypox.processing.form import FormValidator
-from pypox.processing.json import JSONValidator
-from pypox.processing.query import QueryValidator
-from pypox.processing.path import PathValidator
-from pypox.processing.header import HeaderValidator
-from pypox.processing.cookies import CookieValidator
-from pypox.processing.htmx import HTMXHeaders, HTMXValidator
+from pypox.processing.validators.base import Validator
+from pypox.processing.validators.form import FormValidator
+from pypox.processing.validators.json import JSONValidator
+from pypox.processing.validators.query import QueryValidator
+from pypox.processing.validators.path import PathValidator
+from pypox.processing.validators.header import HeaderValidator
+from pypox.processing.validators.cookies import CookieValidator
+from pypox.processing.validators.htmx import HTMXHeaders, HTMXValidator
+from pydantic import create_model
 
 
 def processor(
@@ -80,22 +82,22 @@ class PypoxProcessor:
 
     async def validate(self, request: Request) -> Any:
         params = {}
-        for name, parameter in self.iterate_params(self._func):
+        async for name, parameter in self.iterate_params(self._func):
             if parameter.annotation == Request:
                 params[name] = request
                 break
             for validator in self._validators:
-                validator_obj = validator(name, request)
-                if inspect.iscoroutinefunction(validator_obj.__call__):
-                    data = await validator_obj(parameter.annotation)
-                else:
-                    data = validator_obj(parameter.annotation)
+                validator_obj: Validator = validator(name, parameter.annotation)
+                data = await validator_obj(request)
                 if data:
                     params.update(data)
                     await asyncio.sleep(0)
                     break
         return params
 
-    def iterate_params(self, func: Callable[[Any], Awaitable[Response] | Response]):
+    async def iterate_params(
+        self, func: Callable[[Any], Awaitable[Response] | Response]
+    ):
         for name, parameter in inspect.signature(func).parameters.items():
             yield name, parameter
+            await asyncio.sleep(0)

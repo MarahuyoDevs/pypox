@@ -21,21 +21,13 @@ from starlette.responses import HTMLResponse
 
 class HTMXValidator(HeaderValidator):
 
-    def __init__(self, name: str, request: Request) -> None:
-        super().__init__(name, request)
+    def __init__(self, name: str, _type: Type) -> None:
+        super().__init__(name, _type)
 
-    def __call__(self, _type: Type) -> Any:
-        if _type not in [HTMXHeaders]:
-            return {}
-        return {self._name: self.validate()}
-
-    def validate(self) -> Any:
-        data = {
-            key: val
-            for key, val in self._request.headers.items()
-            if key.startswith("hx-")
-        }
-        return HTMXHeaders.model_validate(data)
+    async def validate(self, _type: Type, request: Request) -> None:
+        if _type not in [HTMXHeaders, HTMXResponseHeaders]:
+            return None
+        return _type(**request.headers)
 
 
 class HTMXHeaders(BaseModel):
