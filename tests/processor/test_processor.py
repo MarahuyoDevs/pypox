@@ -26,6 +26,12 @@ from starlette.requests import Request
 from starlette.testclient import TestClient
 from starlette.exceptions import HTTPException
 
+from pypox.processing.validators.htmx import (
+    HTMXHeaders,
+    HTMXResponseHeaders,
+    HTMXValidator,
+)
+
 
 @pytest.fixture
 def api_client():
@@ -152,16 +158,16 @@ def api_client():
     async def endpoint_body(body: BodyDict) -> JSONResponse:
         return JSONResponse(body)
 
-    app.add_route("/", endpoint_query, methods=["GET"]) #type: ignore
+    app.add_route("/", endpoint_query, methods=["GET"])  # type: ignore
     app.add_route(
-        "/query", endpoint_query_with_dash_or_underline_param, methods=["GET"] #type: ignore
+        "/query", endpoint_query_with_dash_or_underline_param, methods=["GET"]  # type: ignore
     )
     app.add_route(
-        "/{name}/{quantity}/{price}/{premium}", endpoint_path, methods=["GET"] #type: ignore
+        "/{name}/{quantity}/{price}/{premium}", endpoint_path, methods=["GET"]  # type: ignore
     )
-    app.add_route("/header", endpoint_header, methods=["GET"]) #type: ignore
-    app.add_route("/cookie", endpoint_cookies, methods=["GET"]) #type: ignore
-    app.add_route("/json", endpoint_body, methods=["POST"]) #type: ignore
+    app.add_route("/header", endpoint_header, methods=["GET"])  # type: ignore
+    app.add_route("/cookie", endpoint_cookies, methods=["GET"])  # type: ignore
+    app.add_route("/json", endpoint_body, methods=["POST"])  # type: ignore
 
     yield TestClient(
         app,
@@ -325,6 +331,24 @@ def pypox_client():
             "cookie-premium": "true",
         },
     )
+
+
+@pytest.fixture
+def htmx_client():
+
+    @processor([HTMXValidator])
+    async def htmx_request(htmx: HTMXHeaders) -> JSONResponse:
+        return JSONResponse(htmx.model_dump())
+
+    async def htmx_response(request: Request) -> JSONResponse:
+        return JSONResponse(HTMXResponseHeaders(**request.headers).model_dump())
+
+    app = Starlette()
+
+    app.add_route("/", htmx_request, methods=["GET"])  # type: ignore
+    app.add_route("/response", processor()(htmx_response), methods=["GET"])
+
+    return TestClient(app)
 
 
 class TestBaseProcessor:
@@ -502,4 +526,63 @@ class TestPypoxProcessor:
             "quantity": 2,
             "price": 1.5,
             "premium": True,
+        }
+
+
+class TestHTMX:
+
+    def test_htmx_headers(self, htmx_client: TestClient):
+        response = htmx_client.get(
+            "/",
+            headers={
+                "HX-Boosted": "true",
+                "HX-Current-Url": "http://localhost:8000",
+                "HX-History-Restored": "true",
+                "HX-Prompt": "true",
+                "HX-Request": "true",
+                "HX-Target": "target",
+                "HX-Trigger-name": "trigger-name",
+                "HX-Trigger": "trigger",
+            },
+        )
+        assert response.json() == {
+            "boosted": "true",
+            "current_url": "http://localhost:8000",
+            "history_restored": "true",
+            "prompt": "true",
+            "request": "true",
+            "target": "target",
+            "trigger_name": "trigger-name",
+            "trigger": "trigger",
+        }
+
+    def test_htmx_response_headers(self, htmx_client: TestClient):
+        response = htmx_client.get(
+            "/response",
+            headers={
+                "HX-Location": "http://localhost:8000",
+                "HX-Push-Url": "http://localhost:8000",
+                "HX-Redirect": "http://localhost:8000",
+                "HX-Refresh": "http://localhost:8000",
+                "HX-Replace-Url": "http://localhost:8000",
+                "HX-Reswap": "http://localhost:8000",
+                "HX-Retarget": "http://localhost:8000",
+                "HX-Reselect": "http://localhost:8000",
+                "HX-Trigger": "http://localhost:8000",
+                "HX-Trigger-After-Settle": "http://localhost:8000",
+                "HX-Trigger-After-Swap": "http://localhost:8000",
+            },
+        )
+        assert response.json() == {
+            "location": "http://localhost:8000",
+            "push_url": "http://localhost:8000",
+            "redirect": "http://localhost:8000",
+            "refresh": "http://localhost:8000",
+            "replace_url": "http://localhost:8000",
+            "reswap": "http://localhost:8000",
+            "retarget": "http://localhost:8000",
+            "reselect": "http://localhost:8000",
+            "trigger": "http://localhost:8000",
+            "trigger_after_settle": "http://localhost:8000",
+            "trigger_after_swap": "http://localhost:8000",
         }

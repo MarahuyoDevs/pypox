@@ -6,6 +6,15 @@ import base64
 
 
 class BearerTokenMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware for handling bearer token authentication.
+
+    Args:
+        app (ASGIApp): The ASGI application to wrap with the middleware.
+        secret_key (str): The secret key used for token verification.
+        algorithm (str): The algorithm used for token verification.
+        expires_in (int, optional): The expiration time for tokens in seconds. Defaults to 3600.
+    """
 
     def __init__(self, app, secret_key: str, algorithm: str, expires_in: int = 3600):
         self.secret_key = secret_key
@@ -14,6 +23,15 @@ class BearerTokenMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
 
     async def dispatch(self, request, call_next):
+        """Dispatches the request and performs authentication.
+
+        Args:
+            request (Request): The incoming request object.
+            call_next (Callable): The next middleware or route handler.
+
+        Returns:
+            Response: The response returned by the next middleware or route handler.
+        """
         bearer, token = request.headers.get("Authorization", "").split(" ")
         if bearer.lower() != "bearer":
             return JSONResponse({"detail": "Invalid token type"}, status_code=401)
@@ -28,11 +46,28 @@ class BearerTokenMiddleware(BaseHTTPMiddleware):
 
 
 class BasicTokenMiddleware(BaseHTTPMiddleware):
+    """Middleware for handling basic token authentication.
+
+    This middleware extracts the username and password from the Authorization header,
+    validates the token type, and sets the user information in the request state.
+
+    Args:
+        app (ASGIApp): The ASGI application to wrap with this middleware.
+    """
 
     def __init__(self, app):
         super().__init__(app)
 
     async def dispatch(self, request, call_next):
+        """Dispatch method that handles the request.
+
+        Args:
+            request (Request): The incoming request.
+            call_next (Callable): The next middleware or application to call.
+
+        Returns:
+            Response: The response returned by the next middleware or application.
+        """
         basic, token = request.headers.get("Authorization", "").split(" ")
         if basic.lower() != "basic":
             return JSONResponse({"detail": "Invalid token type"}, status_code=401)

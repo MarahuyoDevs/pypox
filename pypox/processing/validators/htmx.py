@@ -51,41 +51,46 @@ class HTMXHeaders(BaseModel):
 
 class HTMXResponseHeaders(BaseModel):
     location: str = Field(
-        default="", validation_alias="hx-location", serialization_alias="hx-location"
+        default="",
+        alias="hx-location",
     )
     push_url: str = Field(
-        default="", validation_alias="hx-push-url", serialization_alias="hx-push-url"
+        default="",
+        alias="hx-push-url",
     )
     redirect: str = Field(
-        default="", validation_alias="hx-redirect", serialization_alias="hx-redirect"
+        default="",
+        alias="hx-redirect",
     )
     refresh: str = Field(
-        default="", validation_alias="hx-refresh", serialization_alias="hx-refresh"
+        default="",
+        alias="hx-refresh",
     )
     replace_url: str = Field(
         default="",
-        validation_alias="hx-replace-url",
-        serialization_alias="hx-replace-url",
+        alias="hx-replace-url",
     )
     reswap: str = Field(
-        default="", validation_alias="hx-reswap", serialization_alias="hx-reswap"
+        default="",
+        alias="hx-reswap",
     )
     retarget: str = Field(
-        default="", validation_alias="hx-retarget", serialization_alias="hx-retarget"
+        default="",
+        alias="hx-retarget",
     )
     reselect: str = Field(
-        default="", validation_alias="hx-reselect", serialization_alias="hx-reselect"
+        default="",
+        alias="hx-reselect",
     )
     trigger: str = Field(
-        default="", validation_alias="hx-trigger", serialization_alias="hx-trigger"
+        default="",
+        alias="hx-trigger",
     )
     trigger_after_settle: str = Field(
         default="",
-        validation_alias="hx-trigger-after-settle",
-        serialization_alias="hx-trigger-after-settle",
+        alias="hx-trigger-after-settle",
     )
     trigger_after_swap: str = Field(
         default="",
-        validation_alias="hx-trigger-after-swap",
-        serialization_alias="hx-trigger-after-swap",
+        alias="hx-trigger-after-swap",
     )

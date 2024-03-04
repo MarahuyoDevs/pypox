@@ -94,6 +94,17 @@ class Pypox(Starlette):
             List[Callable[[Request], Awaitable[Response] | Response]] | None
         ) = None,
     ) -> None:
+        """Add a new route to the application.
+
+        Args:
+            path (str): The URL path for the route.
+            route (Callable): The function or method to be executed when the route is accessed.
+            methods (List[str] | None, optional): The HTTP methods allowed for the route. Defaults to None.
+            name (str | None, optional): The name of the route. Defaults to None.
+            include_in_schema (bool, optional): Whether to include the route in the API schema. Defaults to True.
+            validators (List[Callable[[Request], Awaitable[Response]  |  Response]]  |  None, optional):
+                A list of validators to be applied to the request before executing the route. Defaults to None.
+        """
 
         self.routes.append(
             Route(
@@ -107,6 +118,17 @@ class Pypox(Starlette):
 
 
 class PypoxHTMX(BaseRouter):
+    """A class representing the PypoxHTMX application.
+
+    Args:
+        BaseRouter (type): The base router class.
+
+    Attributes:
+        _openapi_version (str): The OpenAPI version.
+        _info (Info): The information about the application.
+        _license (License): The license information.
+
+    """
 
     def __init__(
         self,
@@ -126,8 +148,8 @@ class PypoxHTMX(BaseRouter):
             directory=directory or "", entry_point="page", file={"page.py": "GET"}
         )
         if self._directory:
-            self._router = Router(
-                self.generate_routes(),
+            self._router = Starlette(
+                routes=self.generate_routes(),
                 middleware=middleware,
                 on_startup=on_startup,
                 on_shutdown=on_shutdown,
@@ -140,6 +162,17 @@ class PypoxHTMX(BaseRouter):
         receive: Callable[[], Awaitable[MutableMapping[str, Any]]],
         send: Callable[[MutableMapping[str, Any]], Awaitable[None]],
     ) -> None:
+        """Handle incoming requests.
+
+        Args:
+            scope (MutableMapping[str, Any]): The request scope.
+            receive (Callable[[], Awaitable[MutableMapping[str, Any]]]): The receive function.
+            send (Callable[[MutableMapping[str, Any]], Awaitable[None]]): The send function.
+
+        Returns:
+            None: No return value.
+
+        """
         if hasattr(self, "_router"):
             return await self._router(scope, receive, send)
         else:

@@ -1,29 +1,9 @@
 from functools import wraps
 import inspect
-from typing import Any, Callable, Awaitable, NewType
+from typing import Any, Callable, Awaitable
 from starlette.requests import Request
 from starlette.responses import Response
 import asyncio
-from pypox._types import (
-    QueryStr,
-    QueryInt,
-    QueryFloat,
-    QueryBool,
-    PathStr,
-    PathInt,
-    PathFloat,
-    PathBool,
-    HeaderStr,
-    HeaderInt,
-    HeaderFloat,
-    HeaderBool,
-    CookieStr,
-    CookieInt,
-    CookieFloat,
-    CookieBool,
-    BodyDict,
-    BodyForm,
-)
 from pypox.processing.validators.base import Validator
 from pypox.processing.validators.form import FormValidator
 from pypox.processing.validators.json import JSONValidator
@@ -31,13 +11,20 @@ from pypox.processing.validators.query import QueryValidator
 from pypox.processing.validators.path import PathValidator
 from pypox.processing.validators.header import HeaderValidator
 from pypox.processing.validators.cookies import CookieValidator
-from pypox.processing.validators.htmx import HTMXHeaders, HTMXValidator
-from pydantic import create_model
+from pypox.processing.validators.htmx import HTMXValidator
 
 
 def processor(
     validators: list = [],
 ) -> Callable:
+    """Decorator function that adds validation to a request handler function.
+
+    Args:
+        validators (list, optional): A list of additional validators to apply. Defaults to [].
+
+    Returns:
+        Callable: A decorated request handler function.
+    """
 
     def decorator(
         func: Callable,
@@ -52,7 +39,6 @@ def processor(
                     PathValidator,
                     HeaderValidator,
                     CookieValidator,
-                    HTMXValidator,
                     JSONValidator,
                     FormValidator,
                 ]
@@ -71,6 +57,15 @@ def processor(
 
 
 class PypoxProcessor:
+    """A class representing a Pypox processor.
+
+    This class is responsible for processing requests and validating parameters.
+
+    Attributes:
+        _validators (list): A list of validators to be applied to the parameters.
+        _func (Callable): The function to be executed for processing the request.
+
+    """
 
     def __init__(
         self,
@@ -80,7 +75,20 @@ class PypoxProcessor:
         self._validators = validators
         self._func = func
 
-    async def validate(self, request: Request) -> Any:
+    async def validate(self, request: Request) -> dict:
+        """Validates the request and returns the parameters.
+
+        This method validates the given request by iterating through the parameters
+        of the associated function and applying the registered validators. It returns
+        a dictionary of parameters that have been validated.
+
+        Args:
+            request (Request): The request object to be validated.
+
+        Returns:
+            Any: A dictionary containing the validated parameters.
+
+        """
         params = {}
         async for name, parameter in self.iterate_params(self._func):
             if parameter.annotation == Request:
@@ -91,7 +99,6 @@ class PypoxProcessor:
                 data = await validator_obj(request)
                 if data:
                     params.update(data)
-                    await asyncio.sleep(0)
                     break
         return params
 
