@@ -1,111 +1,64 @@
----
-hide:
-  - navigation
----
+## Pypox 2.0.0
 
-# Pypox
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python Version](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/downloads/release/python-390/)
 
-## Overview
+Pypox 2.0 is a lightweight and fast Python web framework built on top of Starlette. It aims to provide a flexible and modular development experience for web applications.
 
-The Pypox module is designed to dynamically generate a FastAPI application and API routers based on predefined conventions within a specified directory. It automatically discovers and integrates Python modules within the directory to create endpoints and configure API-related settings.
+**Key Features:**
 
-### Key Aspects
+* **File-based routing:** Pypox leverages a file-based approach for defining application routes, making it intuitive and easy to manage.
+* **Modular design:** The framework adopts a modular architecture, allowing developers to break down their applications into smaller, reusable components.
+* **Processor-based functions:** Pypox introduces processor functions that handle request validation and transformation, simplifying the process of preparing data for your application logic.
 
-1. **Dynamic API Construction:** Pypox dynamically constructs APIs by inspecting the contents of modules within a specified directory. It follows a convention-based approach where modules adhering to predefined naming patterns are automatically integrated into the API structure.
+**Advantages:**
 
-2. **Convention-Driven Approach:** Modules within the designated directory must comply with specific naming conventions to be recognized and utilized by Pypox. These conventions define the purpose and functionality of each module, facilitating automatic endpoint creation and configuration.
+* **Ease of use:** Pypox's file-based routing and modular design contribute to a user-friendly development experience, especially for beginners.
+* **Performance:** Built upon Starlette, Pypox is known for its speed and efficiency, making it suitable for web applications requiring fast performance.
+* **Flexibility:** The modular structure allows developers to customize their development process and integrate Pypox with other libraries and frameworks.
 
-3. **Flexibility and Extensibility:** While relying on conventions, Pypox provides flexibility in managing the API structure. Users can extend functionalities by adding modules that adhere to the prescribed naming conventions, enabling seamless integration into the API structure.
+**Installation Guide:**
 
-4. **Simplified Application Management:** Pypox handles various aspects of API construction, including route creation, endpoint configurations, and application lifecycle management. It streamlines the process of building FastAPI applications, reducing the need for manual configuration and setup.
-
-5. **Lifespan Management:** The module supports the execution of startup and shutdown functions provided within modules. This feature enables proper initialization and cleanup routines, ensuring a well-managed application lifecycle.
-
-### Use Cases
-
-- **Rapid API Prototyping:** Pypox is particularly useful in scenarios requiring quick prototyping or development of RESTful APIs. By adopting a convention-driven approach, developers can focus more on implementing business logic and less on boilerplate code for setting up API endpoints.
-
-- **Microservices Architecture:** In microservices-based architectures, where numerous services communicate via APIs, Pypox aids in standardizing API creation and configuration across multiple services. It promotes consistency in API development while allowing for individual service customization through conventions.
-
-- **API Development Automation:** For projects involving frequent updates or additions to API endpoints, Pypox automates the process of integrating new endpoints or modifying existing ones. This feature helps in scaling applications without compromising on maintainability.
-
-### Advantages
-
-- **Reduced Development Time:** By automating API creation and configuration, Pypox significantly reduces the time spent on manual setup and management, accelerating the development cycle.
-
-- **Consistency and Maintainability:** Enforcing naming conventions ensures a consistent API structure, simplifying maintenance and making the codebase more accessible to new developers.
-
-- **Scalability and Adaptability:** Pypox's modular and convention-driven approach fosters scalability, allowing applications to grow while maintaining a coherent API structure.
-
-- **Improved Collaboration:** The standardized approach to API development enhances collaboration among team members by establishing a common ground for understanding API endpoints and configurations.
-
----
-
-## Features
-
-- Automatic discovery of modules within a specified directory following specific file naming conventions.
-- Dynamically generates FastAPI application and API routers based on discovered modules.
-- Configures endpoints, their methods, and associated configurations based on module contents.
-- Supports startup and shutdown functions to manage the application's lifespan.
-
----
-
-## Installation
-
-To use Pypox, install it using pip:
+1. **Prerequisites:** Ensure you have Python 3.7 or above installed on your system. You can verify the installation by running `python --version` in your terminal.
+2. **Install Pypox:** Use the pip package manager to install Pypox:
 
 ```bash
 pip install pypox
 ```
 
-**Other installation methods**
+**Usage Example:**
 
-if you want to use in a virtual environment. check out the installation page.
-[Installation Page](/pypox/installation/pipenv)
+A basic Pypox application demonstrating a processing function:
 
----
+```python
 
-## Usage
+from pypox.processing.base import processor
+from starlette.applications import Starlette
+from starlette.responses import JSONResponse
+from pypox._types import QueryStr,QueryInt,BodyDict
 
-To use Pypox, follow these steps:
+app = Starlette()
 
-1. **Instantiate Pypox:** Create an instance of the `Pypox` class by providing a directory path containing modules following defined naming conventions.
+@processor()
+async def homepage(name:QueryStr,age:QueryInt,info:BodyDict) -> JSONResponse:
+    return JSONResponse({"message": f"Hello, {name}! You are {age} years old. Info: {info}"})
 
-   ```python
-   pypox_instance = Pypox(directory_path)
-   ```
+app.add_route("/", homepage, methods=["GET"])
 
-2. **Invoke Pypox:** Call the `Pypox` instance as a function to generate the FastAPI application and API routers based on the discovered modules.
+```
 
-   ```python
-   fastapi_app = pypox_instance()
-   ```
+**Dependencies:**
 
-3. **Run the FastAPI application:** Utilize the generated `FastAPI` instance to run the application.
+* Python (>= 3.7)
+* Starlette
 
-   ```python
-   import uvicorn
+**Limitations:**
 
-   if __name__ == "__main__":
-       uvicorn.run(fastapi_app, host="0.0.0.0", port=8000)
-   ```
+* **Early stage:** As Pypox is still under development, it might have limited features or functionalities compared to more mature frameworks.
+* **Documentation:** Comprehensive documentation might not be readily available yet, requiring developers to rely on source code and community resources for guidance.
 
----
+**Further Resources:**
 
-## Dependencies
+* PyPI page: [pypi pypox ON PyPI pypi.org]
 
-Pypox requires the following dependencies:
-
-- `FastAPI`: FastAPI framework, high performance, easy to learn, fast to code, ready for production
-- `uvicorn`: An ASGI web server, for Python. ( you can also use other ASGI web servers like `Hypercorn`, `Daphne`, `etc.`)
-- `sqlmodel`: SQLModel, SQL databases in Python, designed for simplicity, compatibility, and robustness.
-- `sqlalchemy`: Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL.
-
----
-
-## Limitations
-
-- The module assumes specific file naming conventions for modules within the directory.
-- It requires the presence of specific functions (`startup` and `shutdown`) for managing application lifespan.
-- Middleware convention is still in development.
-- Database convention is still a work of progress. expect some bugs and issues when using it.
+This documentation overview provides a more comprehensive introduction to Pypox 2.0+. Remember that the framework is still under development, so keep an eye out for updates and refer to the official resources for the latest information.
