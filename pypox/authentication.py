@@ -1,7 +1,10 @@
+from typing import Callable
 from starlette.middleware.base import BaseHTTPMiddleware
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError, JWTError
 from starlette.responses import JSONResponse
+from starlette.requests import Request
+from starlette.routing import BaseRoute, Match
 import base64
 
 
@@ -16,13 +19,21 @@ class BearerTokenMiddleware(BaseHTTPMiddleware):
         expires_in (int, optional): The expiration time for tokens in seconds. Defaults to 3600.
     """
 
-    def __init__(self, app, secret_key: str, algorithm: str, expires_in: int = 3600):
+    def __init__(
+        self,
+        app,
+        secret_key: str,
+        algorithm: str,
+        expires_in: int = 3600,
+        routes: list[str] = [],
+    ):
         self.secret_key = secret_key
         self.algorithm = algorithm
         self.expires_in = expires_in
+        self.protected_routes = routes
         super().__init__(app)
 
-    async def dispatch(self, request, call_next):
+    async def dispatch(self, request: Request, call_next):
         """Dispatches the request and performs authentication.
 
         Args:
@@ -32,6 +43,11 @@ class BearerTokenMiddleware(BaseHTTPMiddleware):
         Returns:
             Response: The response returned by the next middleware or route handler.
         """
+        if not any(
+            [route for route in self.protected_routes if request.url.path in route]
+        ):
+            return await call_next(request)
+
         bearer, token = request.headers.get("Authorization", "").split(" ")
         if bearer.lower() != "bearer":
             return JSONResponse({"detail": "Invalid token type"}, status_code=401)
@@ -55,7 +71,14 @@ class BasicTokenMiddleware(BaseHTTPMiddleware):
         app (ASGIApp): The ASGI application to wrap with this middleware.
     """
 
-    def __init__(self, app):
+    def __init__(
+        self,
+        app,
+        validator: Callable[[str, str], bool],
+        routes: list[str] = [],
+    ):
+        self.validator = validator
+        self.protected_routes = routes
         super().__init__(app)
 
     async def dispatch(self, request, call_next):
@@ -68,9 +91,18 @@ class BasicTokenMiddleware(BaseHTTPMiddleware):
         Returns:
             Response: The response returned by the next middleware or application.
         """
+
+        if not any(
+            [route for route in self.protected_routes if request.url.path in route]
+        ):
+            return await call_next(request)
+
         basic, token = request.headers.get("Authorization", "").split(" ")
         if basic.lower() != "basic":
             return JSONResponse({"detail": "Invalid token type"}, status_code=401)
         username, _, password = base64.b64decode(token).decode().partition(":")
+        # call the validator function
+        if not self.validator(username, password):
+            return JSONResponse({"detail": "Invalid credentials"}, status_code=401)
         request.state.user = {"username": username, "password": password}
         return await call_next(request)
