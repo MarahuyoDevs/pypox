@@ -1,3 +1,15 @@
+"""
+    This module contains the implementation of the Pypox web application framework based on Starlette.
+
+    The module defines two classes:
+    - Pypox: The main application class that extends the Starlette class.
+    - PypoxHTMX: A class representing the PypoxHTMX application, which is a subclass of BaseRouter.
+
+    Both classes provide methods for adding routes, handling requests, and configuring the application.
+
+    The Pypox class is used as the base class for creating Pypox applications, while the PypoxHTMX class is used for creating Pypox applications with HTMX support.
+"""
+
 import os
 from typing import (
     Any,
@@ -22,7 +34,8 @@ from pypox.openapi.main import OpenAPI, Info, License
 
 
 class Pypox(Starlette):
-    """A web application framework based on Starlette.
+    """
+    A web application framework based on Starlette.
 
     Args:
         Starlette (type): The base class for the Pypox application.
@@ -52,6 +65,23 @@ class Pypox(Starlette):
         license: License = License(name="MIT"),
         validators: list[Any] = [],
     ) -> None:
+        """
+        Initialize the Pypox application.
+
+        Args:
+            conventions (list[BaseRouter] | None, optional): The list of conventions. Defaults to None.
+            debug (bool, optional): Flag indicating whether debug mode is enabled. Defaults to False.
+            middleware (Sequence[Middleware] | None, optional): The middleware stack. Defaults to None.
+            exception_handlers (Mapping[Any, ExceptionHandler] | None, optional): The exception handlers. Defaults to None.
+            on_startup (Sequence[Callable[[], Any]] | None, optional): The startup functions. Defaults to None.
+            on_shutdown (Sequence[Callable[[], Any]] | None, optional): The shutdown functions. Defaults to None.
+            lifespan (Lifespan | None, optional): The lifespan of the application. Defaults to None.
+            open_api_version (str, optional): The OpenAPI version. Defaults to "3.0.3".
+            info (Info, optional): The information about the application. Defaults to Info(title="Pypox", version="0.0.1", license=License(name="MIT")).
+            license (License, optional): The license information. Defaults to License(name="MIT").
+            validators (list[Any], optional): A list of validators. Defaults to [].
+        """
+
         self._openapi_version = open_api_version
         self._info = info
         self._license = license
@@ -76,6 +106,18 @@ class Pypox(Starlette):
         )
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        """
+        Handle incoming requests.
+
+        Args:
+            scope (Scope): The request scope.
+            receive (Receive): The receive function.
+            send (Send): The send function.
+
+        Returns:
+            None: No return value.
+        """
+
         scope["openapi"] = {
             "openapi": self._openapi_version,
             "info": self._info,
@@ -94,7 +136,8 @@ class Pypox(Starlette):
             List[Callable[[Request], Awaitable[Response] | Response]] | None
         ) = None,
     ) -> None:
-        """Add a new route to the application.
+        """
+        Add a new route to the application.
 
         Args:
             path (str): The URL path for the route.
@@ -118,7 +161,8 @@ class Pypox(Starlette):
 
 
 class PypoxHTMX(BaseRouter):
-    """A class representing the PypoxHTMX application.
+    """
+    A class representing the PypoxHTMX application.
 
     Args:
         BaseRouter (type): The base router class.
@@ -127,7 +171,6 @@ class PypoxHTMX(BaseRouter):
         _openapi_version (str): The OpenAPI version.
         _info (Info): The information about the application.
         _license (License): The license information.
-
     """
 
     def __init__(
@@ -141,6 +184,20 @@ class PypoxHTMX(BaseRouter):
         info: Info = Info(title="Pypox", version="0.0.1", license=License(name="MIT")),
         license: License = License(name="MIT"),
     ) -> None:
+        """
+        Initialize the PypoxHTMX application.
+
+        Args:
+            directory (str | None, optional): The directory for the application. Defaults to None.
+            middleware (Sequence[Middleware] | None, optional): The middleware stack. Defaults to None.
+            on_startup (Sequence[Callable[[], Any]] | None, optional): The startup functions. Defaults to None.
+            on_shutdown (Sequence[Callable[[], Any]] | None, optional): The shutdown functions. Defaults to None.
+            lifespan (Lifespan | None, optional): The lifespan of the application. Defaults to None.
+            open_api_version (str, optional): The OpenAPI version. Defaults to "3.0.3".
+            info (Info, optional): The information about the application. Defaults to Info(title="Pypox", version="0.0.1", license=License(name="MIT")).
+            license (License, optional): The license information. Defaults to License(name="MIT").
+        """
+
         self._openapi_version = open_api_version
         self._info = info
         self._license = license
@@ -162,7 +219,8 @@ class PypoxHTMX(BaseRouter):
         receive: Callable[[], Awaitable[MutableMapping[str, Any]]],
         send: Callable[[MutableMapping[str, Any]], Awaitable[None]],
     ) -> None:
-        """Handle incoming requests.
+        """
+        Handle incoming requests.
 
         Args:
             scope (MutableMapping[str, Any]): The request scope.
@@ -171,8 +229,8 @@ class PypoxHTMX(BaseRouter):
 
         Returns:
             None: No return value.
-
         """
+
         if hasattr(self, "_router"):
             return await self._router(scope, receive, send)
         else:

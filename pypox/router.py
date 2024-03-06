@@ -127,7 +127,7 @@ class BaseRouter(Router):
                     self.create_route(
                         route_path,
                         getattr(module, self.callable),
-                        methods=[module_name],
+                        methods=[self._file[file]],
                     )
                 )
 

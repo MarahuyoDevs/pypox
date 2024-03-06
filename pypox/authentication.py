@@ -1,3 +1,15 @@
+"""
+This module contains middleware classes for token-based authentication.
+
+The module provides two middleware classes: `BearerTokenMiddleware` and `BasicTokenMiddleware`.
+`BearerTokenMiddleware` is used for handling bearer token authentication, while `BasicTokenMiddleware`
+is used for handling basic token authentication.
+
+Classes:
+    - BearerTokenMiddleware: Middleware for handling bearer token authentication.
+    - BasicTokenMiddleware: Middleware for handling basic token authentication.
+"""
+
 from typing import Callable
 from starlette.middleware.base import BaseHTTPMiddleware
 from jose import jwt
@@ -17,6 +29,7 @@ class BearerTokenMiddleware(BaseHTTPMiddleware):
         secret_key (str): The secret key used for token verification.
         algorithm (str): The algorithm used for token verification.
         expires_in (int, optional): The expiration time for tokens in seconds. Defaults to 3600.
+        routes (list[str]): The list of protected routes that require authentication.
     """
 
     def __init__(
@@ -69,6 +82,8 @@ class BasicTokenMiddleware(BaseHTTPMiddleware):
 
     Args:
         app (ASGIApp): The ASGI application to wrap with this middleware.
+        validator (Callable[[str, str], bool]): The validator function for validating basic tokens.
+        routes (list[str]): The list of protected routes that require authentication.
     """
 
     def __init__(

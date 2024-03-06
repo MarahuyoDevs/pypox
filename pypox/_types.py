@@ -1,3 +1,28 @@
+"""
+This module defines custom types used in the pypox library.
+
+Types:
+- QueryStr: A new type representing a string used in query parameters.
+- QueryInt: A new type representing an integer used in query parameters.
+- QueryFloat: A new type representing a float used in query parameters.
+- QueryBool: A new type representing a boolean used in query parameters.
+- PathStr: A new type representing a string used in path parameters.
+- PathInt: A new type representing an integer used in path parameters.
+- PathFloat: A new type representing a float used in path parameters.
+- PathBool: A new type representing a boolean used in path parameters.
+- HeaderStr: A new type representing a string used in headers.
+- HeaderInt: A new type representing an integer used in headers.
+- HeaderFloat: A new type representing a float used in headers.
+- HeaderBool: A new type representing a boolean used in headers.
+- CookieStr: A new type representing a string used in cookies.
+- CookieInt: A new type representing an integer used in cookies.
+- CookieFloat: A new type representing a float used in cookies.
+- CookieBool: A new type representing a boolean used in cookies.
+- BodyDict: A new type representing a dictionary used in request bodies.
+- BodyForm: A new type representing a form data used in request bodies.
+
+"""
+
 from typing import NewType
 
 
